@@ -66,15 +66,8 @@ void RFM69_ATC::setMode(uint8_t newMode) {
 // should be called immediately after reception in case sender wants ACK
 void RFM69_ATC::sendACK(const void* buffer, uint8_t bufferSize) {
   ACK_REQUESTED = 0;   // TomWS1 added to make sure we don't end up in a timing race and infinite loop sending Acks
-  uint8_t sender = SENDERID;
-  int16_t _RSSI = RSSI; // save payload received RSSI value
-  bool sendRSSI = ACK_RSSI_REQUESTED;  
   writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
-  uint32_t now = millis();
-  while (!canSend() && millis() - now < RF69_CSMA_LIMIT_MS) receiveDone();
-  SENDERID = sender;    // TomWS1: Restore SenderID after it gets wiped out by receiveDone()
-  sendFrame(sender, buffer, bufferSize, false, true, sendRSSI, _RSSI);   // TomWS1: Special override on sendFrame with extra params
-  RSSI = _RSSI; // restore payload RSSI
+  sendFrame(SENDERID, buffer, bufferSize, false, true, ACK_RSSI_REQUESTED, RSSI);
 }
 
 //=============================================================================
