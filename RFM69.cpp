@@ -234,19 +234,12 @@ void RFM69::setPowerLevel(uint8_t powerLevel)
 
 bool RFM69::canSend()
 {
-  if (_mode == RF69_MODE_RX && PAYLOADLEN == 0 && readRSSI() < CSMA_LIMIT) // if signal stronger than -100dBm is detected assume channel activity
-  {
-    setMode(RF69_MODE_STANDBY);
-    return true;
-  }
-  return false;
+  return readRSSI() < CSMA_LIMIT; // if signal stronger than -100dBm is detected assume channel activity
 }
 
 void RFM69::send(uint8_t toAddress, const void* buffer, uint8_t bufferSize, bool requestACK)
 {
   writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
-  uint32_t now = millis();
-  while (!canSend() && millis() - now < RF69_CSMA_LIMIT_MS) receiveDone();
   sendFrame(toAddress, buffer, bufferSize, requestACK, false);
 }
 
@@ -289,15 +282,9 @@ bool RFM69::ACKRequested() {
 
 // should be called immediately after reception in case sender wants ACK
 void RFM69::sendACK(const void* buffer, uint8_t bufferSize) {
-  ACK_REQUESTED = 0;   // TWS added to make sure we don't end up in a timing race and infinite loop sending Acks
-  uint8_t sender = SENDERID;
-  int16_t _RSSI = RSSI; // save payload received RSSI value
+  ACK_REQUESTED = 0;   // TomWS1 added to make sure we don't end up in a timing race and infinite loop sending Acks
   writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
-  uint32_t now = millis();
-  while (!canSend() && millis() - now < RF69_CSMA_LIMIT_MS) receiveDone();
-  SENDERID = sender;    // TWS: Restore SenderID after it gets wiped out by receiveDone()
-  sendFrame(sender, buffer, bufferSize, false, true);
-  RSSI = _RSSI; // restore payload RSSI
+  sendFrame(SENDERID, buffer, bufferSize, false, true);
 }
 
 // internal function
