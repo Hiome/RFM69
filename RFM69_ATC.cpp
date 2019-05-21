@@ -38,6 +38,7 @@ volatile uint8_t RFM69_ATC::ACK_RSSI_REQUESTED;  // new type of flag on ACK_REQU
 //=============================================================================
 bool RFM69_ATC::initialize(uint8_t freqBand, uint8_t nodeID, uint8_t networkID) {
   _targetRSSI = 0;        // TomWS1: default to disabled
+  _retriesToTransmit=0;
   _ackRSSI = 0;           // TomWS1: no existing response at init time
   ACK_RSSI_REQUESTED = 0; // TomWS1: init to none
   //_powerBoost = false;    // TomWS1: require someone to explicitly turn boost on!
@@ -139,7 +140,7 @@ void RFM69_ATC::interruptHook(uint8_t CTLbyte) {
           // else if (_ackRSSI > _targetRSSI && _transmitLevel > 32) _transmitLevel--;
         // } else {
         if (_ackRSSI < _targetRSSI && _transmitLevel < 31) { _transmitLevel++; /*Serial.println("\n ======= _transmitLevel ++   ======");*/ }
-        else if (_ackRSSI > _targetRSSI && _transmitLevel > 0) { _transmitLevel--; /*Serial.println("\n ======= _transmitLevel --   ======");*/ }
+        else if (_ackRSSI > _targetRSSI && _transmitLevel > 0 && _retriesToTransmit == 0) { _transmitLevel--; /*Serial.println("\n ======= _transmitLevel --   ======");*/ }
         //}
       }
     }
@@ -159,6 +160,7 @@ bool RFM69_ATC::sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t buf
     {
       if (ACKReceived(toAddress))
       {
+        _retriesToTransmit = i;
         return true;
       }
     }
