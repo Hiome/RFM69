@@ -164,8 +164,8 @@ bool RFM69_ATC::sendWithRetry(uint8_t toAddress, const void* buffer, uint8_t buf
         return true;
       }
     }
+    if (_transmitLevel < 31) _transmitLevel++;
   }
-  if (_transmitLevel < 31) _transmitLevel++;
   return false;
 }
 
