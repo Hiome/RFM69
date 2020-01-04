@@ -162,7 +162,7 @@
 
 class RFM69 {
   public:
-    static uint8_t DATA[RF69_MAX_DATA_LEN]; // recv/xmit buf, including header & crc bytes
+    static uint8_t DATA[RF69_MAX_DATA_LEN+1]; // recv/xmit buf, including header & crc bytes
     static uint8_t DATALEN;
     static uint8_t SENDERID;
     static uint8_t TARGETID; // should match _address
@@ -212,7 +212,6 @@ class RFM69 {
     static volatile bool _haveData;
     virtual void sendFrame(uint8_t toAddress, const void* buffer, uint8_t size, bool requestACK=false, bool sendACK=false);
 
-    static RFM69* selfPointer;
     uint8_t _slaveSelectPin;
     uint8_t _interruptPin;
     uint8_t _interruptNum;
@@ -238,6 +237,7 @@ class RFM69 {
   //=============================================================================
   //                     ListenMode specific declarations  
   //=============================================================================
+  static RFM69* selfPointer;
   public:
     // When we receive a packet in listen mode, this is the time left in the sender's burst.
     // You need to wait at least this long before trying to reply.

@@ -87,7 +87,6 @@ void HandleHandshakeACK(RFM69& radio, SPIFlash& flash, uint8_t flashCheck) {
     if (!flash.initialize())
     {
       radio.sendACK("FLX?NOK:NOFLASH",15); //NO FLASH CHIP FOUND, ABORTING
-      Serial.println(F("FAIL:NO FLASH MEM"));
       return;
     }
   }
@@ -316,13 +315,15 @@ uint8_t CheckForSerialHEX(uint8_t* input, uint8_t inputLen, RFM69& radio, uint8_
 //===================================================================================================================
 uint8_t HandleSerialHandshake(RFM69& radio, uint8_t targetID, uint8_t isEOF, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, uint8_t DEBUG)
 {
-  long now = millis();
+  uint32_t now = millis();
 
   while (millis()-now<TIMEOUT)
   {
-    if (radio.sendWithRetry(targetID, isEOF ? "FLX?EOF" : "FLX?", isEOF?7:4, 2,ACKTIMEOUT))
-      if (radio.DATALEN >= 6 && radio.DATA[0]=='F' && radio.DATA[1]=='L' && radio.DATA[2]=='X' && radio.DATA[3]=='?')
+    if (radio.sendWithRetry(targetID, isEOF ? "FLX?EOF" : "FLX?", isEOF?7:4, 3,ACKTIMEOUT)) {
+      if (radio.DATALEN >= 6 && radio.DATA[0]=='F' && radio.DATA[1]=='L' && radio.DATA[2]=='X' && radio.DATA[3]=='?') {
         return true;
+      }
+    }
   }
 
   if (DEBUG) Serial.println(F("Handshake fail"));
@@ -348,7 +349,7 @@ uint8_t HandleSerialHEXDataWrapper(RFM69& radio, uint8_t targetID, uint16_t TIME
 // this is called at the OTA programmer side
 //===================================================================================================================
 uint8_t HandleSerialHEXData(RFM69& radio, uint8_t targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, uint8_t DEBUG) {
-  long now=millis();
+  uint32_t now=millis();
   uint16_t seq=0, tmp=0, inputLen;
   uint8_t remoteID = radio.SENDERID; //save the remoteID as soon as possible
   uint8_t sendBuf[57];
@@ -490,7 +491,7 @@ uint8_t BYTEfromHEX(char MSB, char LSB)
 //===================================================================================================================
 uint8_t sendHEXPacket(RFM69& radio, uint8_t targetID, uint8_t* sendBuf, uint8_t hexDataLen, uint16_t seq, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, uint8_t DEBUG)
 {
-  long now = millis();
+  uint32_t now = millis();
   
   while(1) {
     if (DEBUG) { Serial.print(F("RFTX > ")); PrintHex83(sendBuf, hexDataLen); }
