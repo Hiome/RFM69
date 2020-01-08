@@ -349,7 +349,7 @@ void RFM69::interruptHandler() {
 
     ACK_RECEIVED = CTLbyte & RFM69_CTL_SENDACK; // extract ACK-received flag
     ACK_REQUESTED = CTLbyte & RFM69_CTL_REQACK; // extract ACK-requested flag
-    
+
     interruptHook(CTLbyte);     // TWS: hook to derived class interrupt function
 
     for (uint8_t i = 0; i < DATALEN; i++)
@@ -359,8 +359,8 @@ void RFM69::interruptHandler() {
     DATA[DATALEN] = 0; // add null at end of string
     unselect();
     setMode(RF69_MODE_RX);
+    RSSI = readRSSI();
   }
-  RSSI = readRSSI();
 }
 
 // internal function
