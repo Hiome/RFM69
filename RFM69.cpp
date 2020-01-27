@@ -278,7 +278,7 @@ bool RFM69::ACKReceived(uint8_t fromNodeID) {
 
 // check whether an ACK was requested in the last received packet (non-broadcasted packet)
 bool RFM69::ACKRequested() {
-  return ACK_REQUESTED && (TARGETID != RF69_BROADCAST_ADDR);
+  return ACK_REQUESTED && (TARGETID == _address);
 }
 
 // should be called immediately after reception in case sender wants ACK

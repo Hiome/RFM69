@@ -138,7 +138,7 @@ uint8_t HandleWirelessHEXData(RFM69& radio, uint8_t remoteID, SPIFlash& flash, u
 #endif
   now=millis();
   pinMode(LEDpin,OUTPUT);
-    
+
   while(1)
   {
     if (radio.receiveDone() && radio.SENDERID == remoteID)
@@ -152,7 +152,7 @@ uint8_t HandleWirelessHEXData(RFM69& radio, uint8_t remoteID, SPIFlash& flash, u
         {
           uint8_t index=3;
           tmp = 0;
-          
+
           //read packet SEQ
           for (uint8_t i = 4; i<8; i++) //up to 4 characters for seq number
           {
