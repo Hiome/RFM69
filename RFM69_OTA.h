@@ -34,7 +34,8 @@
 #ifndef RFM69_OTA_H
 #define RFM69_OTA_H
 
-#include <RFM69.h>
+#include "RFM69.h"
+
 #include <SPIFlash.h>
 
 #if defined(MOTEINO_ZERO)
