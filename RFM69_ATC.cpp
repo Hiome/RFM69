@@ -67,9 +67,13 @@ void RFM69_ATC::setMode(uint8_t newMode) {
 //=============================================================================
 // should be called immediately after reception in case sender wants ACK
 void RFM69_ATC::sendACK(const void* buffer, uint8_t bufferSize) {
+  uint8_t oldTransmitLevel = _transmitLevel;
+  // use max power level when sending ack, since we don't know how far sender is
+  _transmitLevel = 31;
   ACK_REQUESTED = 0;   // TomWS1 added to make sure we don't end up in a timing race and infinite loop sending Acks
   writeReg(REG_PACKETCONFIG2, (readReg(REG_PACKETCONFIG2) & 0xFB) | RF_PACKET2_RXRESTART); // avoid RX deadlocks
   sendFrame(SENDERID, buffer, bufferSize, false, true, ACK_RSSI_REQUESTED, RSSI);
+  _transmitLevel = oldTransmitLevel;
 }
 
 //=============================================================================

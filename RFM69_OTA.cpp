@@ -360,7 +360,7 @@ uint8_t HandleSerialHEXData(RFM69& radio, uint8_t targetID, uint16_t TIMEOUT, ui
     inputLen = readSerialLine(input);
     if (inputLen == 0) goto timeoutcheck;
     tmp = 0;
-    
+
     if (inputLen >= 6) { //FLX:9:
       if (input[0]=='F' && input[1]=='L' && input[2]=='X')
       {
