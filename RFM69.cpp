@@ -325,7 +325,7 @@ void RFM69::sendFrame(uint8_t toAddress, const void* buffer, uint8_t bufferSize,
 }
 
 // internal function - interrupt gets called when a packet is received
-void RFM69::interruptHandler() {
+bool RFM69::interruptHandler() {
   if (_mode == RF69_MODE_RX && (readReg(REG_IRQFLAGS2) & RF_IRQFLAGS2_PAYLOADREADY))
   {
     setMode(RF69_MODE_STANDBY);
@@ -341,7 +341,7 @@ void RFM69::interruptHandler() {
       PAYLOADLEN = 0;
       unselect();
       receiveBegin();
-      return;
+      return false;
     }
 
     DATALEN = PAYLOADLEN - 3;
@@ -359,9 +359,10 @@ void RFM69::interruptHandler() {
     }
     DATA[DATALEN] = 0; // add null at end of string
     unselect();
-    setMode(RF69_MODE_RX);
     RSSI = readRSSI();
+    return true;
   }
+  return false;
 }
 
 // internal function
@@ -389,13 +390,10 @@ void RFM69::receiveBegin() {
 bool RFM69::receiveDone() {
   if (_haveData) {
     _haveData = false;
-    interruptHandler();
+    if (interruptHandler()) return true;
   }
 
-  if (_mode == RF69_MODE_RX && PAYLOADLEN > 0) {
-    setMode(RF69_MODE_STANDBY); // enables interrupts
-    return true;
-  } else if (_mode == RF69_MODE_RX) { // already in RX no payload yet
+  if (_mode == RF69_MODE_RX && PAYLOADLEN == 0) { // already in RX no payload yet
     return false;
   }
   receiveBegin();

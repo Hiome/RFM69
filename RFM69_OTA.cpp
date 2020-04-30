@@ -354,7 +354,7 @@ uint8_t HandleSerialHEXData(RFM69& radio, uint8_t targetID, uint16_t TIMEOUT, ui
   uint8_t remoteID = radio.SENDERID; //save the remoteID as soon as possible
   uint8_t sendBuf[57];
   char input[115];
-  //a FLASH record should not be more than 64 bytes: FLX:9999:10042000FF4FA591B4912FB7F894662321F48C91D6 
+  //a FLASH record should not be more than 64 bytes: FLX:9999:10042000FF4FA591B4912FB7F894662321F48C91D6
 
   while(1) {
     inputLen = readSerialLine(input);
@@ -389,7 +389,9 @@ uint8_t HandleSerialHEXData(RFM69& radio, uint8_t targetID, uint16_t TIMEOUT, ui
           {
             if (tmp==seq) //only read data when packet number is the next expected SEQ number
             {
-              uint8_t sendBufLen = prepareSendBuffer(input+index+8, sendBuf, hexDataLen, seq); //extract HEX data from input to BYTE data into sendBuf (go from 2 HEX bytes to 1 byte), +8 jumps over the header to the HEX raw data
+              // extract HEX data from input to BYTE data into sendBuf (go from 2 HEX bytes to 1 byte),
+              // +8 jumps over the header to the HEX raw data
+              uint8_t sendBufLen = prepareSendBuffer(input+index+8, sendBuf, hexDataLen, seq);
               //Serial.print(F("PREP "));Serial.print(sendBufLen); Serial.print(F(" > ")); PrintHex83(sendBuf, sendBufLen);
               
               //SEND RADIO DATA

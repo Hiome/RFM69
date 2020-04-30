@@ -207,7 +207,7 @@ class RFM69 {
 
   protected:
     static void isr0();
-    void interruptHandler();
+    bool interruptHandler();
     virtual void interruptHook(uint8_t CTLbyte) {};
     static volatile bool _haveData;
     virtual void sendFrame(uint8_t toAddress, const void* buffer, uint8_t size, bool requestACK=false, bool sendACK=false);
